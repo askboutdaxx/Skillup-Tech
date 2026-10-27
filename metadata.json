@@ -1,0 +1,6 @@
+{
+  "name": "SkillUp Tech",
+  "description": "Tech learning platform to master digital skills, maintain daily streaks, and save progress.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

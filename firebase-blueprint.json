@@ -1,0 +1,126 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile with streak records, completed lessons, quiz scores, certificates, and learning progress.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Auth user ID",
+          "maxLength": 128
+        },
+        "name": {
+          "type": "string",
+          "description": "Learner display name",
+          "maxLength": 100
+        },
+        "email": {
+          "type": "string",
+          "description": "Learner email address",
+          "maxLength": 150
+        },
+        "streakCount": {
+          "type": "number",
+          "description": "Current consecutive days learning streak"
+        },
+        "longestStreak": {
+          "type": "number",
+          "description": "All-time maximum streak record"
+        },
+        "lastActiveDate": {
+          "type": "string",
+          "description": "Date of last activity in YYYY-MM-DD format",
+          "maxLength": 20
+        },
+        "activeDays": {
+          "type": "array",
+          "description": "List of active dates in YYYY-MM-DD format"
+        },
+        "completedLessons": {
+          "type": "array",
+          "description": "List of completed lesson IDs"
+        },
+        "quizScores": {
+          "type": "object",
+          "description": "Map of module ID to quiz score percentage"
+        },
+        "certificates": {
+          "type": "array",
+          "description": "List of issued track completion certificates"
+        },
+        "lastLessonViewed": {
+          "type": "object",
+          "description": "Details of the most recently visited lesson"
+        },
+        "theme": {
+          "type": "string",
+          "description": "User preference theme mode (light or dark)",
+          "enum": ["light", "dark"]
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp string of last sync"
+        }
+      },
+      "required": ["uid", "name", "email", "streakCount", "longestStreak", "lastActiveDate"]
+    },
+    "LeaderboardEntry": {
+      "title": "LeaderboardEntry",
+      "description": "Public learner scoreboard entry stripped of PII.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Auth user ID",
+          "maxLength": 128
+        },
+        "name": {
+          "type": "string",
+          "description": "Public display name",
+          "maxLength": 100
+        },
+        "streakCount": {
+          "type": "number",
+          "description": "Current consecutive days streak"
+        },
+        "longestStreak": {
+          "type": "number",
+          "description": "All time longest streak"
+        },
+        "completedCount": {
+          "type": "number",
+          "description": "Total lessons completed"
+        },
+        "points": {
+          "type": "number",
+          "description": "Gamified learning points"
+        },
+        "certificatesCount": {
+          "type": "number",
+          "description": "Number of completed tracks"
+        },
+        "lastActiveDate": {
+          "type": "string",
+          "description": "Date of last activity in YYYY-MM-DD format",
+          "maxLength": 20
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp string of last sync"
+        }
+      },
+      "required": ["uid", "name", "streakCount", "completedCount", "points"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Private learner profile and synchronized learning progress."
+    },
+    "/leaderboard/{userId}": {
+      "schema": "LeaderboardEntry",
+      "description": "Public leaderboard projection containing non-sensitive score rankings."
+    }
+  }
+}

@@ -1,0 +1,74 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny all unknown documents
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidUserProfile(data) {
+      return data.keys().hasAll(['uid', 'name', 'email', 'streakCount', 'longestStreak', 'lastActiveDate'])
+        && data.uid is string && data.uid == request.auth.uid && data.uid.size() <= 128
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 100
+        && data.email is string && data.email.size() <= 150
+        && data.streakCount is number && data.streakCount >= 0
+        && data.longestStreak is number && data.longestStreak >= 0
+        && data.lastActiveDate is string && data.lastActiveDate.size() <= 20
+        && (!('activeDays' in data) || (data.activeDays is list && data.activeDays.size() <= 1000))
+        && (!('completedLessons' in data) || (data.completedLessons is list && data.completedLessons.size() <= 500))
+        && (!('quizScores' in data) || data.quizScores is map)
+        && (!('certificates' in data) || (data.certificates is list && data.certificates.size() <= 50))
+        && (!('theme' in data) || (data.theme is string && (data.theme == 'light' || data.theme == 'dark')))
+        && (!('lastLessonViewed' in data) || data.lastLessonViewed is map);
+    }
+
+    function isValidLeaderboardEntry(data) {
+      return data.keys().hasAll(['uid', 'name', 'streakCount', 'completedCount', 'points'])
+        && data.uid is string && data.uid == request.auth.uid && data.uid.size() <= 128
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 100
+        && data.streakCount is number && data.streakCount >= 0
+        && data.completedCount is number && data.completedCount >= 0
+        && data.points is number && data.points >= 0
+        && (!('longestStreak' in data) || data.longestStreak is number)
+        && (!('certificatesCount' in data) || data.certificatesCount is number)
+        && (!('lastActiveDate' in data) || (data.lastActiveDate is string && data.lastActiveDate.size() <= 20));
+    }
+
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false; // PII protection
+      allow create: if isOwner(userId) && isValidId(userId) && isValidUserProfile(incoming());
+      allow update: if isOwner(userId) && isValidId(userId) && isValidUserProfile(incoming())
+        && incoming().uid == existing().uid;
+      allow delete: if isOwner(userId);
+    }
+
+    match /leaderboard/{userId} {
+      allow read: if true; // Public leaderboard visibility
+      allow create: if isOwner(userId) && isValidId(userId) && isValidLeaderboardEntry(incoming());
+      allow update: if isOwner(userId) && isValidId(userId) && isValidLeaderboardEntry(incoming())
+        && incoming().uid == existing().uid;
+      allow delete: if isOwner(userId);
+    }
+  }
+}

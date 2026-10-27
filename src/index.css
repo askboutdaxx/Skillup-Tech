@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  html, body {
+    transition: background-color 250ms ease, color 250ms ease;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background-color: #f8fafc;
+    color: #0d1e4c;
+  }
+
+  html.dark body {
+    background-color: #0b1220;
+    color: #f8fafc;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+/* Light / Dark Mode Surface System */
+:root {
+  --bg-primary: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-subtle: #eaf1ff;
+  --text-main: #0d1e4c;
+  --text-muted: #3b507d;
+  --border-color: #d1e0fc;
+}
+
+.dark {
+  --bg-primary: #0b1220;
+  --bg-card: #131c2e;
+  --bg-subtle: #1c2e60;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border-color: #233876;
+  color-scheme: dark;
+}
+
+/* Print Styles for Official Certificates */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
